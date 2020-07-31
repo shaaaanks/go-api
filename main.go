@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 )
 
@@ -30,7 +30,22 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	s := &server{}
-	http.Handle("/", s)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	// s := &server{}
+	// http.Handle("/", s)
+	// log.Fatal(http.ListenAndServe(":8080", nil))
+
+	a := 4
+	b := &a
+
+	fmt.Printf("Address of var a: %p\n", b)
+	fmt.Printf("Value of var a: %v\n", *b)
+
+	*b = 2
+	fmt.Printf("Address of var a: %p\n", b)
+	fmt.Printf("Value of var a: %v\n", *b)
+
+	a = 1
+	fmt.Printf("Address of var a: %p\n", b)
+	fmt.Printf("Value of var a: %v\n", *b)
+
 }
