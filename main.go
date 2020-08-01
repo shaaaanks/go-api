@@ -31,6 +31,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 }
 
 func getEvents(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(events)
 }
 
@@ -39,6 +40,7 @@ func getEvent(w http.ResponseWriter, r *http.Request) {
 
 	for _, event := range events {
 		if event.ID == eventID {
+			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(event)
 		}
 	}
@@ -56,6 +58,7 @@ func createEvent(w http.ResponseWriter, r *http.Request) {
 	events = append(events, newEvent)
 
 	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(newEvent)
 }
 
@@ -78,6 +81,7 @@ func updateEvent(w http.ResponseWriter, r *http.Request) {
 			events = append(events[:i], event)
 
 			w.WriteHeader(http.StatusAccepted)
+			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(event)
 		}
 	}
@@ -91,6 +95,7 @@ func deleteEvent(w http.ResponseWriter, r *http.Request) {
 			events = append(events[:i], events[i+1:]...)
 
 			w.WriteHeader(http.StatusOK)
+			w.Header().Set("Content-Type", "application/json")
 			fmt.Fprintf(w, "The event with the ID %v has been deleted successfully", eventID)
 		}
 	}
