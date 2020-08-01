@@ -32,7 +32,8 @@ func index(w http.ResponseWriter, r *http.Request) {
 
 func getEvents(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(events)
+	res, _ := json.Marshal(events)
+	w.Write(res)
 }
 
 func getEvent(w http.ResponseWriter, r *http.Request) {
