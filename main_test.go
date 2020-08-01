@@ -49,3 +49,20 @@ func TestGetEvents(t *testing.T) {
 		t.Errorf("Unexpected body: got %v, want %v", responseRecorder.Body.String(), expected)
 	}
 }
+
+func TestGetEvent(t *testing.T) {
+	req, err := http.NewRequest("GET", "/event/1", nil)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	responseRecorder := httptest.NewRecorder()
+	handler := http.HandlerFunc(getEvent)
+
+	handler.ServeHTTP(responseRecorder, req)
+
+	if status := responseRecorder.Code; status != http.StatusOK {
+		t.Errorf("Unexpected status code: got %v, want %v", status, http.StatusOK)
+	}
+}
