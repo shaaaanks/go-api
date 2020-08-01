@@ -34,6 +34,16 @@ func getEvents(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(events)
 }
 
+func getEvent(w http.ResponseWriter, r *http.Request) {
+	eventID := mux.Vars(r)["id"]
+
+	for _, event := range events {
+		if event.ID == eventID {
+			json.NewEncoder(w).Encode(event)
+		}
+	}
+}
+
 func createEvent(w http.ResponseWriter, r *http.Request) {
 	var newEvent event
 	request, err := ioutil.ReadAll(r.Body)
@@ -54,6 +64,7 @@ func main() {
 	router.HandleFunc("/", index)
 	router.HandleFunc("/events", getEvents)
 	router.HandleFunc("/event", createEvent).Methods("POST")
+	router.HandleFunc("/event/{id}", getEvent).Methods("GET")
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
