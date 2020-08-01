@@ -99,10 +99,10 @@ func deleteEvent(w http.ResponseWriter, r *http.Request) {
 func main() {
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", index)
-	router.HandleFunc("/events", getEvents).Methods("GET")
 	router.HandleFunc("/event", createEvent).Methods("POST")
-	router.HandleFunc("/event/{id}", updateEvent).Methods("PATCH")
+	router.HandleFunc("/events", getEvents).Methods("GET")
 	router.HandleFunc("/event/{id}", getEvent).Methods("GET")
+	router.HandleFunc("/event/{id}", updateEvent).Methods("PATCH")
 	router.HandleFunc("/event/{id}", deleteEvent).Methods("DELETE")
 
 	log.Fatal(http.ListenAndServe(":8080", router))
