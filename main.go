@@ -11,9 +11,9 @@ import (
 )
 
 type event struct {
-	ID          string `json:"ID"`
-	Title       string `json:"Title"`
-	Description string `json:"Description"`
+	ID          string `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
 }
 
 type allEvents []event
