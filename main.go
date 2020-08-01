@@ -59,11 +59,36 @@ func createEvent(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(newEvent)
 }
 
+func updateEvent(w http.ResponseWriter, r *http.Request) {
+	eventID := mux.Vars(r)["id"]
+	var updatedEvent event
+
+	request, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Fprintf(w, "Enter Event details")
+	}
+
+	json.Unmarshal(request, &updatedEvent)
+
+	for i, event := range events {
+		if event.ID == eventID {
+			event.Title = updatedEvent.Title
+			event.Description = updatedEvent.Description
+
+			events = append(events[:i], event)
+
+			w.WriteHeader(http.StatusAccepted)
+			json.NewEncoder(w).Encode(event)
+		}
+	}
+}
+
 func main() {
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", index)
 	router.HandleFunc("/events", getEvents)
 	router.HandleFunc("/event", createEvent).Methods("POST")
+	router.HandleFunc("/event/{id}", updateEvent).Methods("PATCH")
 	router.HandleFunc("/event/{id}", getEvent).Methods("GET")
 
 	log.Fatal(http.ListenAndServe(":8080", router))
