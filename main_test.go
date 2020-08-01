@@ -26,3 +26,26 @@ func TestIndex(t *testing.T) {
 		t.Errorf("Unexpected body: got %v, want %v", responseRecorder.Body.String(), expected)
 	}
 }
+
+func TestGetEvents(t *testing.T) {
+	req, err := http.NewRequest("GET", "/events", nil)
+	req.Header.Set("Content-Type", "application/json")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	responseRecorder := httptest.NewRecorder()
+	handler := http.HandlerFunc(getEvents)
+
+	handler.ServeHTTP(responseRecorder, req)
+
+	if status := responseRecorder.Code; status != http.StatusOK {
+		t.Errorf("Unexpected status code: got %v, want %v", status, http.StatusOK)
+	}
+
+	expected := `[{"id":"1","title":"Introduction to Golang","description":"Learn the Go"}]`
+	if responseRecorder.Body.String() != expected {
+		t.Errorf("Unexpected body: got %v, want %v", responseRecorder.Body.String(), expected)
+	}
+}
