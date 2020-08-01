@@ -42,7 +42,8 @@ func getEvent(w http.ResponseWriter, r *http.Request) {
 	for _, event := range events {
 		if event.ID == eventID {
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(event)
+			res, _ := json.Marshal(event)
+			w.Write(res)
 		}
 	}
 }
@@ -60,7 +61,8 @@ func createEvent(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(newEvent)
+	res, _ := json.Marshal(newEvent)
+	w.Write(res)
 }
 
 func updateEvent(w http.ResponseWriter, r *http.Request) {
@@ -83,7 +85,8 @@ func updateEvent(w http.ResponseWriter, r *http.Request) {
 
 			w.WriteHeader(http.StatusAccepted)
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(event)
+			res, _ := json.Marshal(event)
+			w.Write(res)
 		}
 	}
 }
