@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -33,10 +34,26 @@ func getEvents(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(events)
 }
 
+func createEvent(w http.ResponseWriter, r *http.Request) {
+	var newEvent event
+	request, err := ioutil.ReadAll(r.Body)
+
+	if err != nil {
+		fmt.Fprintf(w, "Enter Event details")
+	}
+
+	json.Unmarshal(request, &newEvent)
+	events = append(events, newEvent)
+
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(newEvent)
+}
+
 func main() {
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", index)
 	router.HandleFunc("/events", getEvents)
+	router.HandleFunc("/event", createEvent).Methods("POST")
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
