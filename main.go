@@ -98,19 +98,23 @@ func updateEvent(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// func deleteEvent(w http.ResponseWriter, r *http.Request) {
-// 	eventID := mux.Vars(r)["id"]
+func deleteEvent(w http.ResponseWriter, r *http.Request) {
+	eventID := mux.Vars(r)["id"]
 
-// 	for i, event := range events {
-// 		if event.ID == eventID {
-// 			events = append(events[:i], events[i+1:]...)
+	ctx := context.Background()
+	database := database("events")
+	collection := collection("events", database)
+	meta, err := collection.RemoveDocument(ctx, eventID)
+	if err != nil {
+		fmt.Errorf("Deletion error: %v", err)
+	}
 
-// 			w.WriteHeader(http.StatusOK)
-// 			w.Header().Set("Content-Type", "application/json")
-// 			fmt.Fprintf(w, "The event with the ID %v has been deleted successfully", eventID)
-// 		}
-// 	}
-// }
+	fmt.Print(meta)
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintf(w, "The event with the ID %v has been deleted successfully", eventID)
+}
 
 func main() {
 	router := mux.NewRouter().StrictSlash(true)
@@ -119,7 +123,7 @@ func main() {
 	router.HandleFunc("/events", getEvents).Methods("GET")
 	router.HandleFunc("/event/{id}", getEvent).Methods("GET")
 	router.HandleFunc("/event/{id}", updateEvent).Methods("PATCH")
-	// router.HandleFunc("/event/{id}", deleteEvent).Methods("DELETE")
+	router.HandleFunc("/event/{id}", deleteEvent).Methods("DELETE")
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
