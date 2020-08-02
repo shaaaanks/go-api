@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -38,35 +39,33 @@ func getEvents(w http.ResponseWriter, r *http.Request) {
 // 	}
 // }
 
-// func createEvent(w http.ResponseWriter, r *http.Request) {
-// 	var newEvent event
-// 	request, err := ioutil.ReadAll(r.Body)
+func createEvent(w http.ResponseWriter, r *http.Request) {
+	var newEvent event
+	request, err := ioutil.ReadAll(r.Body)
 
-// 	if err != nil {
-// 		fmt.Fprintf(w, "Enter Event details")
-// 	}
+	if err != nil {
+		fmt.Fprintf(w, "Enter Event details")
+	}
 
-// 	json.Unmarshal(request, &newEvent)
-// 	// events = append(events, newEvent)
-// 	fmt.Printf("title: %v", newEvent.Title)
-// 	fmt.Printf("description: %v", newEvent.Description)
+	json.Unmarshal(request, &newEvent)
+	fmt.Printf("title: %v", newEvent.Title)
+	fmt.Printf("description: %v", newEvent.Description)
 
-// 	if newEvent.Title != "" {
-// 		connect := connect()
-// 		database := database("events", connect)
-// 		collection := collection("events", database)
+	if newEvent.Title != "" {
+		database := database("events")
+		collection := collection("events", database)
 
-// 		meta, err := collection.CreateDocument(nil, newEvent)
-// 		if err != nil {
-// 			fmt.Errorf("Creation error: %v", err)
-// 		}
-// 		log.Println(meta)
+		meta, err := collection.CreateDocument(nil, newEvent)
+		if err != nil {
+			fmt.Errorf("Creation error: %v", err)
+		}
+		log.Println(meta)
 
-// 		w.WriteHeader(http.StatusCreated)
-// 		w.Header().Set("Content-Type", "application/json")
-// 		json.NewEncoder(w).Encode(newEvent)
-// 	}
-// }
+		w.WriteHeader(http.StatusCreated)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(newEvent)
+	}
+}
 
 // func updateEvent(w http.ResponseWriter, r *http.Request) {
 // 	eventID := mux.Vars(r)["id"]
@@ -111,7 +110,7 @@ func getEvents(w http.ResponseWriter, r *http.Request) {
 func main() {
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", index)
-	// router.HandleFunc("/event", createEvent).Methods("POST")
+	router.HandleFunc("/event", createEvent).Methods("POST")
 	router.HandleFunc("/events", getEvents).Methods("GET")
 	// router.HandleFunc("/event/{id}", getEvent).Methods("GET")
 	// router.HandleFunc("/event/{id}", updateEvent).Methods("PATCH")

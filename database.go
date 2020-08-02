@@ -61,11 +61,11 @@ func getAllDocuments() allevents {
 	return events
 }
 
-// func Collection(name string, db driver.Database) driver.Collection {
-// 	col, err := db.Collection(nil, "events")
-// 	if err != nil {
-// 		fmt.Errorf("Collection error: %v", err)
-// 	}
+func collection(name string, db driver.Database) driver.Collection {
+	col, err := db.Collection(nil, "events")
+	if err != nil {
+		fmt.Errorf("Collection error: %v", err)
+	}
 
-// 	return col
-// }
+	return col
+}
