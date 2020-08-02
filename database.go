@@ -50,8 +50,8 @@ func getAllDocuments() allevents {
 	for {
 		var event event
 		meta, err := cursor.ReadDocument(ctx, &event)
-		fmt.Print(event)
-		fmt.Print(meta)
+		event.Key = meta.Key
+
 		events = append(events, event)
 		if driver.IsNoMoreDocuments(err) {
 			break

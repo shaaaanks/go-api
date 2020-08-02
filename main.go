@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -11,6 +12,7 @@ import (
 )
 
 type event struct {
+	Key         string `json:"id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 }
@@ -27,17 +29,18 @@ func getEvents(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(events)
 }
 
-// func getEvent(w http.ResponseWriter, r *http.Request) {
-// 	eventID := mux.Vars(r)["id"]
+func getEvent(w http.ResponseWriter, r *http.Request) {
+	eventID := mux.Vars(r)["id"]
 
-// 	for _, event := range events {
-// 		if event.ID == eventID {
-// 			w.Header().Set("Content-Type", "application/json")
-// 			res, _ := json.Marshal(event)
-// 			w.Write(res)
-// 		}
-// 	}
-// }
+	database := database("events")
+	collection := collection("events", database)
+	ctx := context.Background()
+	var event event
+	collection.ReadDocument(ctx, eventID, &event)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(event)
+}
 
 func createEvent(w http.ResponseWriter, r *http.Request) {
 	var newEvent event
@@ -112,7 +115,7 @@ func main() {
 	router.HandleFunc("/", index)
 	router.HandleFunc("/event", createEvent).Methods("POST")
 	router.HandleFunc("/events", getEvents).Methods("GET")
-	// router.HandleFunc("/event/{id}", getEvent).Methods("GET")
+	router.HandleFunc("/event/{id}", getEvent).Methods("GET")
 	// router.HandleFunc("/event/{id}", updateEvent).Methods("PATCH")
 	// router.HandleFunc("/event/{id}", deleteEvent).Methods("DELETE")
 
