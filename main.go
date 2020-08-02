@@ -70,31 +70,33 @@ func createEvent(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// func updateEvent(w http.ResponseWriter, r *http.Request) {
-// 	eventID := mux.Vars(r)["id"]
-// 	var updatedEvent event
+func updateEvent(w http.ResponseWriter, r *http.Request) {
+	eventID := mux.Vars(r)["id"]
+	var updatedEvent event
 
-// 	request, err := ioutil.ReadAll(r.Body)
-// 	if err != nil {
-// 		fmt.Fprintf(w, "Enter Event details")
-// 	}
+	request, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Fprintf(w, "Enter Event details")
+	}
 
-// 	json.Unmarshal(request, &updatedEvent)
+	json.Unmarshal(request, &updatedEvent)
+	// fmt.Print(updatedEvent.)
 
-// 	for i, event := range events {
-// 		if event.ID == eventID {
-// 			event.Title = updatedEvent.Title
-// 			event.Description = updatedEvent.Description
+	ctx := context.Background()
+	database := database("events")
+	collection := collection("events", database)
+	meta, err := collection.UpdateDocument(ctx, eventID, updatedEvent)
+	if err != nil {
+		fmt.Errorf("Update error: %v", err)
+	}
 
-// 			events = append(events[:i], event)
+	fmt.Print(meta)
 
-// 			w.WriteHeader(http.StatusAccepted)
-// 			w.Header().Set("Content-Type", "application/json")
-// 			res, _ := json.Marshal(event)
-// 			w.Write(res)
-// 		}
-// 	}
-// }
+	w.WriteHeader(http.StatusAccepted)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(meta)
+
+}
 
 // func deleteEvent(w http.ResponseWriter, r *http.Request) {
 // 	eventID := mux.Vars(r)["id"]
@@ -116,7 +118,7 @@ func main() {
 	router.HandleFunc("/event", createEvent).Methods("POST")
 	router.HandleFunc("/events", getEvents).Methods("GET")
 	router.HandleFunc("/event/{id}", getEvent).Methods("GET")
-	// router.HandleFunc("/event/{id}", updateEvent).Methods("PATCH")
+	router.HandleFunc("/event/{id}", updateEvent).Methods("PATCH")
 	// router.HandleFunc("/event/{id}", deleteEvent).Methods("DELETE")
 
 	log.Fatal(http.ListenAndServe(":8080", router))
