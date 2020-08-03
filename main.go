@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -24,7 +23,25 @@ func index(w http.ResponseWriter, r *http.Request) {
 func getEvents(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	events := getAllDocuments()
+	driver, err := GetDriver("arangoDB")
+	if err != nil {
+		log.Fatalf("Error loading database driver: %v", err)
+	}
+
+	err = driver.Conn()
+	if err != nil {
+		log.Fatalf("Error connecting to database: %v", err)
+	}
+
+	err = driver.Init()
+	if err != nil {
+		log.Fatalf("Error initialising database: %v", err)
+	}
+
+	events, err := driver.FindAll()
+	if err != nil {
+		log.Fatalf("Error getting items from database: %v", err)
+	}
 
 	json.NewEncoder(w).Encode(events)
 }
@@ -32,17 +49,46 @@ func getEvents(w http.ResponseWriter, r *http.Request) {
 func getEvent(w http.ResponseWriter, r *http.Request) {
 	eventID := mux.Vars(r)["id"]
 
-	database := database("events")
-	collection := collection("events", database)
-	ctx := context.Background()
-	var event event
-	collection.ReadDocument(ctx, eventID, &event)
+	driver, err := GetDriver("arangoDB")
+	if err != nil {
+		log.Fatalf("Error loading database driver: %v", err)
+	}
+
+	err = driver.Conn()
+	if err != nil {
+		log.Fatalf("Error connecting to database: %v", err)
+	}
+
+	err = driver.Init()
+	if err != nil {
+		log.Fatalf("Error initialising database: %v", err)
+	}
+
+	event, err := driver.Find(eventID)
+	if err != nil {
+		log.Fatalf("Error getting item from database: %v", err)
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(event)
 }
 
 func createEvent(w http.ResponseWriter, r *http.Request) {
+	driver, err := GetDriver("arangoDB")
+	if err != nil {
+		log.Fatalf("Error loading database driver: %v", err)
+	}
+
+	err = driver.Conn()
+	if err != nil {
+		log.Fatalf("Error connecting to database: %v", err)
+	}
+
+	err = driver.Init()
+	if err != nil {
+		log.Fatalf("Error initialising database: %v", err)
+	}
+
 	var newEvent event
 	request, err := ioutil.ReadAll(r.Body)
 
@@ -54,20 +100,11 @@ func createEvent(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("title: %v", newEvent.Title)
 	fmt.Printf("description: %v", newEvent.Description)
 
-	if newEvent.Title != "" {
-		database := database("events")
-		collection := collection("events", database)
+	driver.Create(newEvent)
 
-		meta, err := collection.CreateDocument(nil, newEvent)
-		if err != nil {
-			fmt.Errorf("Creation error: %v", err)
-		}
-		log.Println(meta)
-
-		w.WriteHeader(http.StatusCreated)
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(newEvent)
-	}
+	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(newEvent)
 }
 
 func updateEvent(w http.ResponseWriter, r *http.Request) {
@@ -80,36 +117,55 @@ func updateEvent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.Unmarshal(request, &updatedEvent)
-	// fmt.Print(updatedEvent.)
 
-	ctx := context.Background()
-	database := database("events")
-	collection := collection("events", database)
-	meta, err := collection.UpdateDocument(ctx, eventID, updatedEvent)
+	driver, err := GetDriver("arangoDB")
 	if err != nil {
-		fmt.Errorf("Update error: %v", err)
+		log.Fatalf("Error loading database driver: %v", err)
 	}
 
-	fmt.Print(meta)
+	err = driver.Conn()
+	if err != nil {
+		log.Fatalf("Error connecting to database: %v", err)
+	}
+
+	err = driver.Init()
+	if err != nil {
+		log.Fatalf("Error initialising database: %v", err)
+	}
+
+	err = driver.Update(eventID, updatedEvent)
+	if err != nil {
+		log.Fatalf("Error updating item in database: %v", err)
+	}
 
 	w.WriteHeader(http.StatusAccepted)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(meta)
+	json.NewEncoder(w).Encode(updatedEvent)
 
 }
 
 func deleteEvent(w http.ResponseWriter, r *http.Request) {
 	eventID := mux.Vars(r)["id"]
 
-	ctx := context.Background()
-	database := database("events")
-	collection := collection("events", database)
-	meta, err := collection.RemoveDocument(ctx, eventID)
+	driver, err := GetDriver("arangoDB")
 	if err != nil {
-		fmt.Errorf("Deletion error: %v", err)
+		log.Fatalf("Error loading database driver: %v", err)
 	}
 
-	fmt.Print(meta)
+	err = driver.Conn()
+	if err != nil {
+		log.Fatalf("Error connecting to database: %v", err)
+	}
+
+	err = driver.Init()
+	if err != nil {
+		log.Fatalf("Error initialising database: %v", err)
+	}
+
+	err = driver.Delete(eventID)
+	if err != nil {
+		log.Fatalf("Error deleting item from database: %v", err)
+	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
