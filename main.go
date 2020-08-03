@@ -11,7 +11,6 @@ import (
 )
 
 type event struct {
-	Key         string `json:"id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 }
