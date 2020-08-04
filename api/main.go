@@ -12,13 +12,17 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Hello, World")
+type driver struct {
+	create  func(interface{}) error
+	update  func(string, interface{}) error
+	delete  func(string) error
+	find    func(string) (interface{}, error)
+	findAll func() ([]interface{}, error)
 }
 
-func getEvents(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+var database driver
 
+func init() {
 	driver, err := kibisis.GetDriver("arangoDB")
 	if err != nil {
 		log.Fatalf("Error loading database driver: %v", err)
@@ -34,7 +38,21 @@ func getEvents(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("Error initialising database: %v", err)
 	}
 
-	events, err := driver.FindAll()
+	database.create = driver.Create
+	database.update = driver.Update
+	database.delete = driver.Delete
+	database.find = driver.Find
+	database.findAll = driver.FindAll
+}
+
+func index(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, "Hello, World")
+}
+
+func getEvents(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	events, err := database.findAll()
 	if err != nil {
 		log.Fatalf("Error getting items from database: %v", err)
 	}
@@ -45,22 +63,7 @@ func getEvents(w http.ResponseWriter, r *http.Request) {
 func getEvent(w http.ResponseWriter, r *http.Request) {
 	eventID := mux.Vars(r)["id"]
 
-	driver, err := kibisis.GetDriver("arangoDB")
-	if err != nil {
-		log.Fatalf("Error loading database driver: %v", err)
-	}
-
-	err = driver.Conn()
-	if err != nil {
-		log.Fatalf("Error connecting to database: %v", err)
-	}
-
-	err = driver.Init()
-	if err != nil {
-		log.Fatalf("Error initialising database: %v", err)
-	}
-
-	event, err := driver.Find(eventID)
+	event, err := database.find(eventID)
 	if err != nil {
 		log.Fatalf("Error getting item from database: %v", err)
 	}
@@ -70,21 +73,6 @@ func getEvent(w http.ResponseWriter, r *http.Request) {
 }
 
 func createEvent(w http.ResponseWriter, r *http.Request) {
-	driver, err := kibisis.GetDriver("arangoDB")
-	if err != nil {
-		log.Fatalf("Error loading database driver: %v", err)
-	}
-
-	err = driver.Conn()
-	if err != nil {
-		log.Fatalf("Error connecting to database: %v", err)
-	}
-
-	err = driver.Init()
-	if err != nil {
-		log.Fatalf("Error initialising database: %v", err)
-	}
-
 	var newEvent Event
 	request, err := ioutil.ReadAll(r.Body)
 
@@ -96,7 +84,7 @@ func createEvent(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("title: %v", newEvent.Title)
 	fmt.Printf("description: %v", newEvent.Description)
 
-	driver.Create(newEvent)
+	database.create(newEvent)
 
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
@@ -114,22 +102,7 @@ func updateEvent(w http.ResponseWriter, r *http.Request) {
 
 	json.Unmarshal(request, &updatedEvent)
 
-	driver, err := kibisis.GetDriver("arangoDB")
-	if err != nil {
-		log.Fatalf("Error loading database driver: %v", err)
-	}
-
-	err = driver.Conn()
-	if err != nil {
-		log.Fatalf("Error connecting to database: %v", err)
-	}
-
-	err = driver.Init()
-	if err != nil {
-		log.Fatalf("Error initialising database: %v", err)
-	}
-
-	err = driver.Update(eventID, updatedEvent)
+	err = database.update(eventID, updatedEvent)
 	if err != nil {
 		log.Fatalf("Error updating item in database: %v", err)
 	}
@@ -143,22 +116,7 @@ func updateEvent(w http.ResponseWriter, r *http.Request) {
 func deleteEvent(w http.ResponseWriter, r *http.Request) {
 	eventID := mux.Vars(r)["id"]
 
-	driver, err := kibisis.GetDriver("arangoDB")
-	if err != nil {
-		log.Fatalf("Error loading database driver: %v", err)
-	}
-
-	err = driver.Conn()
-	if err != nil {
-		log.Fatalf("Error connecting to database: %v", err)
-	}
-
-	err = driver.Init()
-	if err != nil {
-		log.Fatalf("Error initialising database: %v", err)
-	}
-
-	err = driver.Delete(eventID)
+	err := database.delete(eventID)
 	if err != nil {
 		log.Fatalf("Error deleting item from database: %v", err)
 	}
