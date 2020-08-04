@@ -12,29 +12,25 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type driver struct {
-	driver kibisis.Database
-}
-
 var database driver
 
 func init() {
-	driver, err := kibisis.GetDriver("arangoDB")
+	var err error
+
+	database.driver, err = kibisis.GetDriver("arangoDB")
 	if err != nil {
 		log.Fatalf("Error loading database driver: %v", err)
 	}
 
-	err = driver.Conn()
+	err = database.conn()
 	if err != nil {
 		log.Fatalf("Error connecting to database: %v", err)
 	}
 
-	err = driver.Init()
+	err = database.init()
 	if err != nil {
 		log.Fatalf("Error initialising database: %v", err)
 	}
-
-	database.driver = driver
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -44,7 +40,8 @@ func index(w http.ResponseWriter, r *http.Request) {
 func getEvents(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	events, err := database.driver.FindAll()
+	events, err := database.findAll()
+
 	if err != nil {
 		log.Fatalf("Error getting items from database: %v", err)
 	}
