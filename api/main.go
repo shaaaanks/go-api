@@ -13,11 +13,7 @@ import (
 )
 
 type driver struct {
-	create  func(interface{}) error
-	update  func(string, interface{}) error
-	delete  func(string) error
-	find    func(string) (interface{}, error)
-	findAll func() ([]interface{}, error)
+	driver kibisis.Database
 }
 
 var database driver
@@ -38,11 +34,7 @@ func init() {
 		log.Fatalf("Error initialising database: %v", err)
 	}
 
-	database.create = driver.Create
-	database.update = driver.Update
-	database.delete = driver.Delete
-	database.find = driver.Find
-	database.findAll = driver.FindAll
+	database.driver = driver
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -52,7 +44,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 func getEvents(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	events, err := database.findAll()
+	events, err := database.driver.FindAll()
 	if err != nil {
 		log.Fatalf("Error getting items from database: %v", err)
 	}
@@ -63,7 +55,7 @@ func getEvents(w http.ResponseWriter, r *http.Request) {
 func getEvent(w http.ResponseWriter, r *http.Request) {
 	eventID := mux.Vars(r)["id"]
 
-	event, err := database.find(eventID)
+	event, err := database.driver.Find(eventID)
 	if err != nil {
 		log.Fatalf("Error getting item from database: %v", err)
 	}
@@ -84,7 +76,7 @@ func createEvent(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("title: %v", newEvent.Title)
 	fmt.Printf("description: %v", newEvent.Description)
 
-	database.create(newEvent)
+	database.driver.Create(newEvent)
 
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
@@ -102,7 +94,7 @@ func updateEvent(w http.ResponseWriter, r *http.Request) {
 
 	json.Unmarshal(request, &updatedEvent)
 
-	err = database.update(eventID, updatedEvent)
+	err = database.driver.Update(eventID, updatedEvent)
 	if err != nil {
 		log.Fatalf("Error updating item in database: %v", err)
 	}
@@ -116,7 +108,7 @@ func updateEvent(w http.ResponseWriter, r *http.Request) {
 func deleteEvent(w http.ResponseWriter, r *http.Request) {
 	eventID := mux.Vars(r)["id"]
 
-	err := database.delete(eventID)
+	err := database.driver.Delete(eventID)
 	if err != nil {
 		log.Fatalf("Error deleting item from database: %v", err)
 	}
