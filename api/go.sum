@@ -63,6 +63,7 @@ github.com/rs/zerolog v1.19.0/go.mod h1:IzD0RJ65iWH0w97OQQebJEvTZYvsCUm9WVLWBQrJ
 github.com/shaaaanks/go-api v0.0.0-20200803232955-1596882d891e h1:N5HwBF77fQH/23hdnF6LpfUWuidnWxSMrU/jfjrHCww=
 github.com/shaaaanks/go-api v0.0.0-20200803232955-1596882d891e/go.mod h1:sM5CmxWKg+fmK4xlcWJdfd/tWSCcbo4Ni4W6fmWsdi0=
 github.com/shaaaanks/go-api v0.0.0-20200804210027-e732a83ef360 h1:m4/0lR9nRCerzyvMMjEm5tCOVAMW8RRKKz8R8anu4D4=
+github.com/shaaaanks/go-api/api v0.0.0-20200804210027-e732a83ef360 h1:VFmLoWZeDOi7wJyjr0SRtNMJO3EqrcdyCJ0NKNAAskU=
 github.com/spf13/pflag v0.0.0-20170130214245-9ff6c6923cff/go.mod h1:DYY7MBk1bdzusC3SYhjObp+wFpr4gzcvqqNjLnInEg4=
 github.com/spf13/pflag v1.0.5/go.mod h1:McXfInJRrz4CZXVZOBLb0bTZqETkiAhM9Iw0y3An2Bg=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=

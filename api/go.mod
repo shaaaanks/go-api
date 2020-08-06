@@ -1,4 +1,4 @@
-module api
+module github.com/shaaaanks/go-api/api
 
 go 1.14
 
