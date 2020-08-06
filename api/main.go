@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	kibisis "github.com/shaaaanks/go-api"
+	kibisis "github.com/shaaaanks/go-api/kibisis"
 
 	"github.com/gorilla/mux"
 )

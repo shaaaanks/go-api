@@ -1,6 +1,6 @@
 package main
 
-import kibisis "github.com/shaaaanks/go-api"
+import kibisis "github.com/shaaaanks/go-api/kibisis"
 
 type driver struct {
 	driver kibisis.Database
