@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/shaaaanks/go-api/api/database"
 	"github.com/shaaaanks/go-api/api/handlers"
+	"github.com/shaaaanks/go-api/api/middleware"
 )
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -23,6 +24,8 @@ func GenerateRouter(db *database.DB) *mux.Router {
 	router.HandleFunc("/event/{id}", handlers.GetEvent(db)).Methods("GET")
 	router.HandleFunc("/event/{id}", handlers.UpdateEvent(db)).Methods("PATCH")
 	router.HandleFunc("/event/{id}", handlers.DeleteEvent(db)).Methods("DELETE")
+
+	router.Use(middleware.Logging)
 
 	return router
 }

@@ -9,6 +9,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/shaaaanks/go-api/api/database"
+	"github.com/shaaaanks/go-api/api/structs"
 )
 
 func GetEvents(db *database.DB) http.HandlerFunc {
@@ -41,7 +42,7 @@ func GetEvent(db *database.DB) http.HandlerFunc {
 
 func CreateEvent(db *database.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var newEvent Event
+		var newEvent structs.Event
 		request, err := ioutil.ReadAll(r.Body)
 
 		if err != nil {
@@ -63,7 +64,7 @@ func CreateEvent(db *database.DB) http.HandlerFunc {
 func UpdateEvent(db *database.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		eventID := mux.Vars(r)["id"]
-		var updatedEvent Event
+		var updatedEvent structs.Event
 
 		request, err := ioutil.ReadAll(r.Body)
 		if err != nil {

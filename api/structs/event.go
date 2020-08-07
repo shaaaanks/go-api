@@ -1,4 +1,4 @@
-package handlers
+package structs
 
 // Event - a struct for an event
 type Event struct {
