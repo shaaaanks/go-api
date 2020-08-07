@@ -7,7 +7,7 @@ import (
 
 type DB struct {
 	Driver         kibisis.Database
-	GenerateRouter *mux.Router
+	GenerateRouter mux.Router
 }
 
 func (d *DB) Conn() error {
